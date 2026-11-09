@@ -37,6 +37,8 @@ public class GameActivity extends Activity {
     private int nativeW = 2400, nativeH = 1080;
 
     private Hw hw;
+    private android.widget.RadioGroup hudGroup;
+    private static final String[] D3D = {"HKEY_CURRENT_USER", "Software", "IndirectX", "Direct3D", "Config"};
     private Spinner resSpinner;
     private int resExtra = -1; // высота из файла, если нестандартная
     private final List<Spinner> spinners = new ArrayList<Spinner>();
@@ -270,6 +272,24 @@ public class GameActivity extends Activity {
         fill(resSpinner, resLabels(-1), 1);
         c.addView(text("Чем ниже разрешение, тем выше FPS и холоднее телефон.", 11, S.muted, false));
 
+        LinearLayout ch = card(left, "Счётчик FPS в игре");
+        hudGroup = new android.widget.RadioGroup(this);
+        hudGroup.setOrientation(android.widget.RadioGroup.HORIZONTAL);
+        String[] hl = {"Выключен", "Компактный", "Полный"};
+        for (int i = 0; i < hl.length; i++) {
+            android.widget.RadioButton rb = new android.widget.RadioButton(this);
+            rb.setText(hl[i]);
+            rb.setId(200 + i);
+            rb.setTextColor(S.text);
+            rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            rb.setButtonTintList(new android.content.res.ColorStateList(
+                new int[][] {new int[] {android.R.attr.state_checked}, new int[] {}}, new int[] {S.accent, 0xFF8A8A94}));
+            hudGroup.addView(rb);
+        }
+        hudGroup.check(200);
+        ch.addView(hudGroup);
+        ch.addView(text("Встроенная статистика движка: FPS, время кадра, нагрузка. Отдельного лимита это не меняет.", 11, S.muted, false));
+
         for (Games.Group g : S.groups) {
             LinearLayout gc = card(right, g.title);
             for (Games.Opt o : g.opts) {
@@ -456,6 +476,9 @@ public class GameActivity extends Activity {
             }
             fill(spinners.get(i), labels, sel);
         }
+        boolean showHud = "1".equals(PrefsEditor.getInKey(xml, "ShowFeralGUI", D3D));
+        boolean compactHud = "1".equals(PrefsEditor.getInKey(xml, "CompactFeralGUI", D3D));
+        hudGroup.check(!showHud ? 200 : (compactHud ? 201 : 202));
         String hs = PrefsEditor.getInKey(xml, "FixedScreenHeight", S.setup);
         List<String> rl = resLabels(-1);
         int sel = 1;
@@ -536,6 +559,11 @@ public class GameActivity extends Activity {
                     if (PrefsEditor.getInKey(xml, key, keyPath(o)) == null) continue;
                     xml = PrefsEditor.setInKey(xml, key, o.type, triple ? val + ", " + val + ", " + val : val, keyPath(o));
                 }
+            }
+            int hud = hudGroup.getCheckedRadioButtonId() - 200;
+            if (hud > 0 || PrefsEditor.getInKey(xml, "ShowFeralGUI", D3D) != null) {
+                xml = PrefsEditor.setInKey(xml, "ShowFeralGUI", "integer", hud > 0 ? "1" : "0", D3D);
+                xml = PrefsEditor.setInKey(xml, "CompactFeralGUI", "integer", hud == 1 ? "1" : "0", D3D);
             }
             for (String[] f : S.force) {
                 if (PrefsEditor.getInKey(xml, f[0], S.setup) != null) xml = PrefsEditor.setInKey(xml, f[0], "string", f[1], S.setup);
