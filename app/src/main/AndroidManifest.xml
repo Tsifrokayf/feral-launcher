@@ -8,6 +8,10 @@
         <package android:name="com.feralinteractive.tombraider_android" />
         <package android:name="com.feralinteractive.hitmanabsolution_android" />
         <package android:name="com.feralinteractive.gridlegends_android" />
+        <package android:name="com.feralinteractive.gridautosport_edition_android" />
+        <package android:name="com.feralinteractive.hitmanbloodmoney_android" />
+        <package android:name="com.feralinteractive.xcom2_android" />
+        <package android:name="com.feralinteractive.tropico3" />
         <package android:name="moe.shizuku.privileged.api" />
     </queries>
     <application
@@ -27,6 +31,11 @@
         </activity>
         <activity
             android:name="com.sr3launcher.LauncherActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode" />
+        <activity
+            android:name="com.sr3launcher.GameActivity"
             android:exported="false"
             android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density|uiMode" />

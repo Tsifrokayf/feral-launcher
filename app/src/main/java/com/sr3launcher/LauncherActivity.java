@@ -20,6 +20,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -663,19 +664,87 @@ public class LauncherActivity extends Activity {
         super.onDestroy();
     }
 
+
+    /** Выбор разрешения в виде выпадающего списка (как на экранах новых игр). Радиокнопки остаются скрытыми внутри и хранят выбор. */
+    private final class ResGroup extends RadioGroup {
+        private final Spinner sp;
+        private boolean syncing;
+
+        ResGroup() {
+            super(LauncherActivity.this);
+            setOrientation(VERTICAL);
+            LinearLayout r = new LinearLayout(LauncherActivity.this);
+            r.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout names = new LinearLayout(LauncherActivity.this);
+            names.setOrientation(LinearLayout.VERTICAL);
+            names.addView(text("Высота рендера", 15, TEXT, false));
+            names.addView(text("Меньше: больше FPS, но мягче картинка", 11, MUTED, false));
+            r.addView(names, new LinearLayout.LayoutParams(0, -2, 1f));
+            sp = new Spinner(LauncherActivity.this);
+            r.addView(sp, new LinearLayout.LayoutParams(dp(250), -2));
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(-1, -2);
+            rp.bottomMargin = dp(8);
+            super.addView(r, -1, rp);
+            sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                    if (syncing) return;
+                    List<RadioButton> rb = radios();
+                    if (pos >= 0 && pos < rb.size() && rb.get(pos).getId() != getCheckedRadioButtonId()) ResGroup.super.check(rb.get(pos).getId());
+                }
+                @Override public void onNothingSelected(AdapterView<?> p) { }
+            });
+        }
+
+        private List<RadioButton> radios() {
+            List<RadioButton> l = new ArrayList<RadioButton>();
+            for (int i = 0; i < getChildCount(); i++) if (getChildAt(i) instanceof RadioButton) l.add((RadioButton) getChildAt(i));
+            return l;
+        }
+
+        private void sync() {
+            syncing = true;
+            List<RadioButton> rb = radios();
+            List<String> labels = new ArrayList<String>();
+            int sel = 0;
+            for (int i = 0; i < rb.size(); i++) {
+                labels.add(rb.get(i).getText().toString());
+                if (rb.get(i).getId() == getCheckedRadioButtonId()) sel = i;
+            }
+            fillSpinner(sp, labels, sel);
+            syncing = false;
+        }
+
+        @Override
+        public void addView(View child, int index, ViewGroup.LayoutParams params) {
+            super.addView(child, index, params);
+            if (child instanceof RadioButton) { child.setVisibility(View.GONE); sync(); }
+        }
+
+        @Override
+        public void removeView(View v) {
+            super.removeView(v);
+            if (v instanceof RadioButton) sync();
+        }
+
+        @Override
+        public void check(int id) {
+            super.check(id);
+            sync();
+        }
+    }
+
     private void addResolutionCard(LinearLayout left) {
         // --- разрешение
         LinearLayout cRes = card(left, "Разрешение рендера");
         resHeights = SR3 ? new int[] {nativeH, 1280, 1080, 720, 540} : new int[] {nativeH, 1280, 1080, 900, 800, 720, 540};
         baseRes = resHeights.length;
-        resGroup = new RadioGroup(this);
-        resGroup.setOrientation(RadioGroup.VERTICAL);
+        resGroup = new ResGroup();
         String[] names = SR3 ? new String[] {"Нативное", "1280p", "1080p", "720p", "540p"}
             : new String[] {"Нативное", "1280p", "1080p", "900p", "800p", "720p", "540p"};
         for (int i = 0; i < resHeights.length; i++) {
             int w = widthFor(resHeights[i]);
             String label = names[i] + "   " + w + "×" + resHeights[i];
-            if (i == 0) label = "Нативное (экран)   " + nativeW + "×" + nativeH;
+            if (i == 0) label = "Нативное   " + nativeW + "×" + nativeH;
             radio(resGroup, label, 100 + i);
         }
         cRes.addView(resGroup);

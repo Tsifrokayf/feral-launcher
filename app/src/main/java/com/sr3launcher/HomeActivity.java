@@ -50,6 +50,10 @@ public class HomeActivity extends Activity {
             new G("tr", "Tomb Raider", "com.feralinteractive.tombraider_android", R.drawable.logo_tr, 0xFFE8A33D, 0xFF132529),
             new G("hm", "Hitman:\nAbsolution", "com.feralinteractive.hitmanabsolution_android", R.drawable.logo_hm, 0xFFDB2D2D, 0xFF19191D),
             new G("gl", "GRID Legends", "com.feralinteractive.gridlegends_android", R.drawable.logo_gl, 0xFFFF6A2B, 0xFF121D29),
+            new G("gas", "GRID\nAutosport", "com.feralinteractive.gridautosport_edition_android", R.drawable.logo_gas, 0xFFFFB020, 0xFF1D1A12),
+            new G("bm", "Hitman:\nBlood Money", "com.feralinteractive.hitmanbloodmoney_android", R.drawable.logo_bm, 0xFFE04848, 0xFF1E1416),
+            new G("xc", "XCOM 2\nCollection", "com.feralinteractive.xcom2_android", R.drawable.logo_xc, 0xFF3FD2C7, 0xFF0F1F21),
+            new G("tp", "Tropico", "com.feralinteractive.tropico3", R.drawable.logo_tp, 0xFF4FC36A, 0xFF11201A),
         };
         getWindow().setStatusBarColor(0xFF0B0D12);
         getWindow().setNavigationBarColor(0xFF0B0D12);
@@ -163,7 +167,7 @@ public class HomeActivity extends Activity {
 
         ScrollView sv = new ScrollView(this);
         row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setOrientation(LinearLayout.VERTICAL);
         row.setGravity(Gravity.CENTER);
         sv.setFillViewport(true);
         sv.addView(row, new ViewGroupLP().fill());
@@ -259,7 +263,17 @@ public class HomeActivity extends Activity {
 
     private void buildCards() {
         row.removeAllViews();
+        LinearLayout line = null;
+        int n = 0;
         for (final G g : games) {
+            if (n % 4 == 0) {
+                line = new LinearLayout(this);
+                line.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(-1, -2);
+                ll.bottomMargin = dp(10);
+                row.addView(line, ll);
+            }
+            n++;
             final boolean ok = installed(g.pkg);
             LinearLayout c = new LinearLayout(this);
             c.setOrientation(LinearLayout.VERTICAL);
@@ -272,11 +286,21 @@ public class HomeActivity extends Activity {
             c.setBackground(bg);
             c.setAlpha(ok ? 1f : 0.55f);
 
-            ImageView logo = new ImageView(this);
-            logo.setImageResource(g.logo);
-            logo.setAdjustViewBounds(true);
-            logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            c.addView(logo, new LinearLayout.LayoutParams(dp(110), dp(70)));
+            if (g.logo != 0) {
+                ImageView logo = new ImageView(this);
+                logo.setImageResource(g.logo);
+                logo.setAdjustViewBounds(true);
+                logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                c.addView(logo, new LinearLayout.LayoutParams(dp(120), dp(60)));
+            } else {
+                TextView badge = new TextView(this);
+                badge.setText(g.title.substring(0, 1) + (g.title.contains("\n") ? g.title.substring(g.title.indexOf('\n') + 1, g.title.indexOf('\n') + 2) : ""));
+                badge.setGravity(Gravity.CENTER);
+                badge.setTextColor(g.accent);
+                badge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+                badge.setTypeface(Typeface.DEFAULT_BOLD);
+                c.addView(badge, new LinearLayout.LayoutParams(dp(120), dp(60)));
+            }
 
             TextView t = new TextView(this);
             t.setText(g.title);
@@ -284,6 +308,7 @@ public class HomeActivity extends Activity {
             t.setTextColor(Color.WHITE);
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
             t.setTypeface(Typeface.DEFAULT_BOLD);
+            t.setLines(2);
             LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-2, -2);
             tp.topMargin = dp(8);
             c.addView(t, tp);
@@ -299,12 +324,13 @@ public class HomeActivity extends Activity {
             c.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     if (!ok) { Toast.makeText(HomeActivity.this, "Установите игру, потом откроются настройки", Toast.LENGTH_SHORT).show(); return; }
-                    startActivity(new Intent(HomeActivity.this, LauncherActivity.class).putExtra("game", g.id));
+                    boolean generic = Games.byId(g.id) != null;
+                    startActivity(new Intent(HomeActivity.this, generic ? GameActivity.class : LauncherActivity.class).putExtra("game", g.id));
                 }
             });
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1f);
             lp.leftMargin = dp(6); lp.rightMargin = dp(6);
-            row.addView(c, lp);
+            line.addView(c, lp);
         }
     }
 

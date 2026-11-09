@@ -2,7 +2,7 @@
 
 <p align="center">
   Один лаунчер настроек для Android-портов Feral Interactive:<br>
-  <b>Saints Row: The Third</b>, <b>Tomb Raider</b>, <b>Hitman: Absolution</b>, <b>GRID Legends</b>.
+  <b>Saints Row: The Third</b>, <b>Tomb Raider</b>, <b>Hitman: Absolution</b>, <b>GRID Legends</b>, <b>GRID Autosport</b>, <b>Hitman: Blood Money</b>, <b>XCOM 2 Collection</b> и <b>Tropico</b>.
 </p>
 
 <p align="center">
@@ -10,7 +10,7 @@
 </p>
 
 > **English:** Feral Launcher is a single Android app with a settings screen for each of four Feral Interactive ports:
-> *Saints Row: The Third*, *Tomb Raider*, *Hitman: Absolution* and *GRID Legends*. It edits each game's preferences file
+> *Saints Row: The Third*, *Tomb Raider*, *Hitman: Absolution*, *GRID Legends*, *GRID Autosport*, *Hitman: Blood Money*, *XCOM 2 Collection* and *Tropico*. It edits each game's preferences file
 > through [Shizuku](https://shizuku.rikka.app/) or root: render resolution, per-option graphics quality, FPS limit,
 > hidden engine options and one-tap presets. It does not modify the game APKs.
 
@@ -21,7 +21,7 @@
 
 ## Как устроен лаунчер
 
-На главном экране четыре карточки. Установленные игры подсвечены, неустановленные серые. Нажмите на игру: откроются её настройки в её цветах,
+На главном экране восемь карточек. Установленные игры подсвечены, неустановленные серые. Нажмите на игру: откроются её настройки в её цветах,
 кнопка «Назад» возвращает к выбору. Настройки и резервные копии у игр раздельные. В углу главного экрана автор, ссылка на репозиторий и версия.
 
 <p align="center">
@@ -46,7 +46,9 @@
 
 - Android 11 или новее.
 - Установленная игра: Saints Row: The Third (`com.feralinteractive.saintsrow3_android`), Tomb Raider (`com.feralinteractive.tombraider_android`),
-  Hitman: Absolution (`com.feralinteractive.hitmanabsolution_android`) или GRID Legends (`com.feralinteractive.gridlegends_android`).
+  Hitman: Absolution (`com.feralinteractive.hitmanabsolution_android`), GRID Legends (`com.feralinteractive.gridlegends_android`),
+  GRID Autosport (`com.feralinteractive.gridautosport_edition_android`), Hitman: Blood Money (`com.feralinteractive.hitmanbloodmoney_android`),
+  XCOM 2 Collection (`com.feralinteractive.xcom2_android`) или Tropico (`com.feralinteractive.tropico3`).
 - Доступ к папке игры: **root** или [Shizuku](https://shizuku.rikka.app/), запущенный и с выданным разрешением. Android 11+ не даёт обычным приложениям писать в `Android/data` другого приложения.
 - Игру нужно запустить хотя бы один раз до главного меню: при этом создаётся файл настроек.
 
@@ -93,6 +95,7 @@
 - **Tomb Raider:** шкала «Качество текстур» перевёрнута: чем меньше число, тем чётче текстуры (0 самые чёткие, 3 самые мыльные). Лимит FPS меняется только если вы тронули его в лаунчере: настройка FPS в самой игре сохраняется.
 - **Hitman: Absolution:** игра сама сбрасывает значения вне своих пределов (SSAO не выше 2, разрешение текстур не выше 1, MSAA сбрасывается в 0), поэтому лаунчер предлагает только допустимые. Пропуск заставок при запуске не работает: ключ есть, но эта версия игры его не использует.
 - **GRID Legends:** значения настроек взяты из файла игры; пункт «Асинхронные вычисления» помечен как опасный: при включении игра может зависнуть на заставке.
+- **GRID Autosport, Hitman: Blood Money, XCOM 2, Tropico:** добавлены в 2.1.0 по файлам настроек с реального устройства. Часть значений (старшие уровни XCOM 2, «Среднее» в Tropico, FXAA в Blood Money) игра может не знать и тогда оставит ближайшее. У Blood Money графических параметров мало, главный рычаг там разрешение.
 - **Saints Row: The Third:** включённая «Файловая память игры» (`UseFileBackedMemory`) вызывала вылеты на некоторых планшетах.
 
 ## Что нужно знать
@@ -147,3 +150,7 @@ gradle assembleRelease
 ## Лицензия
 
 Код распространяется по лицензии MIT, см. [LICENSE](LICENSE). Лицензия не распространяется на логотипы и товарные знаки.
+
+## Добавить игру
+
+Лаунчер описывает игры таблицей (`Games.java`). Чтобы добавить новую Feral-игру, пришлите имя пакета и файл `Android/data/<пакет>/files/feral_app_support/preferences`, снятый после первого запуска игры до главного меню (откройте Issue).
