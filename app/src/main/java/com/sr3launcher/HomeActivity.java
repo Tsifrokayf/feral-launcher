@@ -32,7 +32,7 @@ public class HomeActivity extends Activity {
     private LinearLayout row;
     private LinearLayout updBar;
     private TextView updText;
-    private Button updBtn;
+    private Button updBtn, laterBtn;
     private Updater.Release updRel;
     private boolean updBusy;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -64,9 +64,38 @@ public class HomeActivity extends Activity {
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setLetterSpacing(0.08f);
-        root.addView(title);
+        LinearLayout top = new LinearLayout(this);
+        top.setOrientation(LinearLayout.HORIZONTAL);
+        top.addView(title, new LinearLayout.LayoutParams(0, -2, 1f));
+        LinearLayout info = new LinearLayout(this);
+        info.setOrientation(LinearLayout.VERTICAL);
+        info.setGravity(Gravity.END);
+        TextView auth = new TextView(this);
+        auth.setText("Автор: Tsifrokayf");
+        auth.setTextColor(0xFFC5CBD6);
+        auth.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        auth.setGravity(Gravity.END);
+        info.addView(auth);
+        TextView gh = new TextView(this);
+        gh.setText("github.com/Tsifrokayf/feral-launcher");
+        gh.setTextColor(0xFF6EA8FF);
+        gh.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        gh.setGravity(Gravity.END);
+        gh.setPaintFlags(gh.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+        gh.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) {
+            startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/Tsifrokayf/feral-launcher")));
+        } });
+        info.addView(gh);
+        TextView ver = new TextView(this);
+        ver.setText("Версия " + BuildConfig.VERSION_NAME);
+        ver.setTextColor(0xFF8A93A3);
+        ver.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+        ver.setGravity(Gravity.END);
+        info.addView(ver);
+        top.addView(info, new LinearLayout.LayoutParams(-2, -2));
+        root.addView(top, new LinearLayout.LayoutParams(-1, -2));
         TextView sub = new TextView(this);
-        sub.setText("Выберите игру: откроются её настройки графики, FPS и запуск. Версия " + BuildConfig.VERSION_NAME);
+        sub.setText("Выберите игру: откроются её настройки графики, FPS и запуск.");
         sub.setTextColor(0xFF8A93A3);
         sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
@@ -94,8 +123,26 @@ public class HomeActivity extends Activity {
         bb.setCornerRadius(dp(10));
         updBtn.setBackground(bb);
         updBtn.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { downloadUpdate(); } });
+        laterBtn = new Button(this);
+        laterBtn.setText("Позже");
+        laterBtn.setAllCaps(false);
+        laterBtn.setTextColor(Color.WHITE);
+        GradientDrawable lb = new GradientDrawable();
+        lb.setColor(0xFF39425A);
+        lb.setCornerRadius(dp(10));
+        laterBtn.setBackground(lb);
+        laterBtn.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) {
+            if (updRel != null) {
+                getSharedPreferences("home", MODE_PRIVATE).edit()
+                    .putString("later_tag", updRel.tag).putLong("later_at", System.currentTimeMillis()).apply();
+            }
+            updBar.setVisibility(View.GONE);
+        } });
+        LinearLayout.LayoutParams lbp = new LinearLayout.LayoutParams(-2, -2);
+        lbp.leftMargin = dp(12);
+        updBar.addView(laterBtn, lbp);
         LinearLayout.LayoutParams ubp = new LinearLayout.LayoutParams(-2, -2);
-        ubp.leftMargin = dp(12);
+        ubp.leftMargin = dp(8);
         updBar.addView(updBtn, ubp);
         updBar.setVisibility(View.GONE);
         LinearLayout.LayoutParams ubl = new LinearLayout.LayoutParams(-1, -2);
@@ -124,6 +171,9 @@ public class HomeActivity extends Activity {
                     @Override public void run() {
                         if (rel != null && rel.apkUrl.length() > 0 && Updater.newer(rel.tag, BuildConfig.VERSION_NAME)) {
                             updRel = rel;
+                            android.content.SharedPreferences sp = getSharedPreferences("home", MODE_PRIVATE);
+                            // «Позже» прячет баннер этой версии на сутки; более новая версия покажется сразу
+                            if (rel.tag.equals(sp.getString("later_tag", "")) && System.currentTimeMillis() - sp.getLong("later_at", 0) < 24L * 3600 * 1000) return;
                             updText.setText("Доступна новая версия " + rel.tag + " (у вас " + BuildConfig.VERSION_NAME + ")");
                             updBar.setVisibility(View.VISIBLE);
                         }
@@ -137,6 +187,7 @@ public class HomeActivity extends Activity {
         if (updBusy || updRel == null) return;
         updBusy = true;
         updBtn.setEnabled(false);
+        laterBtn.setEnabled(false);
         updText.setText("Скачиваю " + updRel.tag + "…");
         final String url = updRel.apkUrl;
         new Thread(new Runnable() {
@@ -154,6 +205,7 @@ public class HomeActivity extends Activity {
                     @Override public void run() {
                         updBusy = false;
                         updBtn.setEnabled(true);
+                        laterBtn.setEnabled(true);
                         if (error != null) { updText.setText("Не удалось скачать: " + error); return; }
                         installUpdate();
                     }
