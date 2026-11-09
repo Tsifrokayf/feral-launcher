@@ -90,7 +90,7 @@ final class Games {
                 ladder("Частицы", "", a("gfxconfig_particles", "gfxconfig_high_particles"), null, L_OFF4, a("off", "low", "medium", "high")),
                 ladder("Толпа", "", a("gfxconfig_crowd", "gfxconfig_high_crowd"), null, L_LOW4, a("ultralow", "low", "medium", "high")),
                 ladder("Отражения на машинах", "", a("gfxconfig_car_reflection", "gfxconfig_high_car_reflection"), null, L_LMH, a("low", "medium", "high")),
-                ladder("Затенение углов (AO)", "", a("gfxconfig_dynamic_ambient_occ", "gfxconfig_high_dynamic_ambient_occ"), null, L_LOW4, a("ultralow", "low", "medium", "high")),
+                ladder("Затенение углов (AO)", "Чем выше, тем темнее картинка", a("gfxconfig_dynamic_ambient_occ", "gfxconfig_high_dynamic_ambient_occ"), null, L_LOW4, a("ultralow", "low", "medium", "high")),
                 ladder("Фильтрация текстур", "", a("gfxconfig_anisotropic_filtering", "gfxconfig_high_anisotropic_filtering"), null, L_OFF4, a("off", "low", "medium", "high")),
                 new Opt("Масштаб рендера", "Процент от выбранного разрешения", a("gfxconfig_window_scale", "gfxconfig_high_window_scale"), null, "integer",
                     a("60%", "70%", "80%", "90%", "100%"), a("60", "70", "80", "90", "100"), true, 0),

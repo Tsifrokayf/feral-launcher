@@ -112,7 +112,7 @@ public class LauncherActivity extends Activity {
     private final Opt[] opts = new Opt[] {
         new Opt("GfxShadow", "Качество теней", "string", "Разрешение и дальность теневых карт", L3, V3, 1),
         new Opt("GfxLighting", "Освещение", "string", "Качество динамического освещения", L3, V3, 2),
-        new Opt("GfxSSAO", "Затенение углов (SSAO)", "string", "Мягкие тени в складках и щелях", L4, V4, 0),
+        new Opt("GfxSSAO", "Затенение углов (SSAO)", "string", "Мягкие тени в складках. Чем выше, тем темнее картинка; рекомендуется низкое", L4, V4, 0),
         new Opt("GfxSSLR", "Отражения в экране (SSLR)", "string", "Отражения на лужах, стекле и машинах", L4, V4, 0),
         new Opt("GfxVolumetricFog", "Объёмный туман", "string", "Лучи света и дымка", L4, V4, 1),
         new Opt("GfxAA", "Сглаживание", "string", "TAA чище, но чуть мылит; FXAA резче; выкл. даёт лесенки",
@@ -1616,7 +1616,7 @@ public class LauncherActivity extends Activity {
         /* слабый  */ {4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 35, 65, 1},
     };
     private static final int[][] AUTO30 = {
-        /* флагман */ {0, 2, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 5, 40, 0},
+        /* флагман */ {0, 2, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 5, 40, 0},
         /* мощный  */ {2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 10, 45, 0},
         /* средний */ {3, 1, 1, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 1, 2, 20, 50, 1},
         /* слабый  */ {4, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 30, 60, 1},
@@ -1628,8 +1628,8 @@ public class LauncherActivity extends Activity {
         /* Минимум */ {4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 35, 65, 1},
         /* Низкие  */ {3, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 30, 60, 1},
         /* Средние */ {1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 20, 50, 1},
-        /* Высокие */ {0, 2, 2, 2, 1, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 10, 45, 0},
-        /* Ультра  */ {0, 2, 2, 3, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 3, 0, 40, 0},
+        /* Высокие */ {0, 2, 2, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 10, 45, 0},
+        /* Ультра  */ {0, 2, 2, 1, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 3, 0, 40, 0},
     };
 
     // ---------------------------------------------------------------- Tomb Raider и Hitman
@@ -1671,7 +1671,7 @@ public class LauncherActivity extends Activity {
             oGfx = new Ex[] {
                 ex("ShadowMode", "Тени: режим", "Значения 0–2 взяты из файла настроек", TRG, 1, "integer", 1, "0|0", "1|1 (по умолч.)", "2|2"),
                 ex("ShadowResolution", "Тени: разрешение", "Больше: чётче тени, тяжелее", TRG, 1, "integer", 1, "0|0 (низкое)", "1|1 (по умолч.)", "2|2", "3|3 (макс.)"),
-                ex("SSAOMode", "Затенение углов (SSAO)", "", TRG, 1, "integer", 1, "0|Выкл.", "1|1 (по умолч.)", "2|2", "3|3"),
+                ex("SSAOMode", "Затенение углов (SSAO)", "Чем выше, тем темнее картинка: в тёмных сценах (пещеры, свечи) свет почти пропадает. Рекомендуется 1", TRG, 1, "integer", 1, "0|Выкл.", "1|1 (по умолч.)", "2|2", "3|3"),
                 ex("DOFQuality", "Глубина резкости", "", TRG, 1, "integer", 1, "0|Выкл.", "1|1 (по умолч.)", "2|2", "3|3"),
                 ex("LODScale", "Детализация вдали (LOD)", "Больше: модели упрощаются позже", TRG, 1, "integer", 2, "0|0 (мин.)", "1|1", "2|2 (по умолч.)", "3|3 (макс.)"),
                 ex("TextureQuality", "Качество текстур", "Чем МЕНЬШЕ число, тем чётче текстуры (проверено в игре: 3 — самые мыльные). Авто: игра выбирает по видеопамяти", TRG, 1, "integer", 0, "-1|Авто (по умолч.)", "0|0 (макс. чёткость)", "1|1", "2|2", "3|3 (мин., мыльные)"),
@@ -1739,7 +1739,7 @@ public class LauncherActivity extends Activity {
                     "ReflectionQuality=0", "HairQuality=0", "AntiAliasingMode=1", "EnableTessellation=0", "EnablePostProcess=1", "EnableMotionBlur=0"},
                 {"res=0", "dyn=0", "ShadowMode=2", "ShadowResolution=2", "SSAOMode=2", "DOFQuality=2", "LODScale=3", "TextureQuality=1", "BestTextureFilter=6",
                     "ReflectionQuality=1", "HairQuality=1", "AntiAliasingMode=2", "EnableTessellation=0", "EnablePostProcess=1", "EnableMotionBlur=0"},
-                {"res=0", "dyn=0", "ShadowMode=2", "ShadowResolution=3", "SSAOMode=3", "DOFQuality=3", "LODScale=3", "TextureQuality=0", "BestTextureFilter=6",
+                {"res=0", "dyn=0", "ShadowMode=2", "ShadowResolution=3", "SSAOMode=1", "DOFQuality=3", "LODScale=3", "TextureQuality=0", "BestTextureFilter=6",
                     "ReflectionQuality=2", "HairQuality=1", "AntiAliasingMode=3", "EnableTessellation=1", "EnablePostProcess=1", "EnableMotionBlur=0"},
             };
         } else if (HM) {
@@ -1749,7 +1749,7 @@ public class LauncherActivity extends Activity {
                 sw("FXAA", "Сглаживание FXAA", "", HMG, 3, 1),
                                 ex("LevelOfDetail", "Детализация вдали (LOD)", "", HMG, 3, "integer", 3, "0|0 (мин.)", "1|1", "2|2", "3|3 (макс.)"),
                 ex("ShadowQuality", "Тени", "", HMG, 3, "integer", 3, "0|0 (мин.)", "1|1", "2|2", "3|3", "4|4 (макс.)"),
-                ex("SSAO", "Затенение углов (SSAO)", "Игра принимает значения до 2: больше она сама сбрасывает при старте", HMG, 3, "integer", 0, "0|Выкл.", "1|1", "2|2 (макс.)"),
+                ex("SSAO", "Затенение углов (SSAO)", "Чем выше, тем темнее картинка. Игра принимает значения до 2: больше она сама сбрасывает при старте. Рекомендуется 1", HMG, 3, "integer", 0, "0|Выкл.", "1|1", "2|2 (макс.)"),
                 sw("LPV", "Глобальное освещение (LPV)", "Тяжело для GPU", HMG, 3, 0),
                 ex("MirrorQuality", "Зеркала и отражения", "", HMG, 3, "integer", 3, "0|0 (мин.)", "1|1", "2|2", "3|3 (макс.)"),
                 sw("Tessellation", "Тесселяция", "", HMG, 3, 0),
@@ -1813,9 +1813,9 @@ public class LauncherActivity extends Activity {
                     "Tessellation=0", "TextureFilter=1", "TextureResolution=0", "ResolutionScalingMultiplier=0.800000"},
                 {"res=1080", "dyn=1", "Bloom=1", "Bokeh=1", "FXAA=1", "MSAA=0", "LevelOfDetail=2", "ShadowQuality=2", "SSAO=1", "LPV=0", "MirrorQuality=2",
                     "Tessellation=0", "TextureFilter=2", "TextureResolution=1", "ResolutionScalingMultiplier=1.000000"},
-                {"res=0", "dyn=1", "Bloom=1", "Bokeh=2", "FXAA=1", "MSAA=0", "LevelOfDetail=3", "ShadowQuality=3", "SSAO=2", "LPV=1", "MirrorQuality=3",
+                {"res=0", "dyn=1", "Bloom=1", "Bokeh=2", "FXAA=1", "MSAA=0", "LevelOfDetail=3", "ShadowQuality=3", "SSAO=1", "LPV=1", "MirrorQuality=3",
                     "Tessellation=0", "TextureFilter=3", "TextureResolution=1", "ResolutionScalingMultiplier=1.000000"},
-                {"res=0", "dyn=0", "Bloom=1", "Bokeh=2", "FXAA=1", "MSAA=0", "LevelOfDetail=3", "ShadowQuality=4", "SSAO=2", "LPV=1", "MirrorQuality=3",
+                {"res=0", "dyn=0", "Bloom=1", "Bokeh=2", "FXAA=1", "MSAA=0", "LevelOfDetail=3", "ShadowQuality=4", "SSAO=1", "LPV=1", "MirrorQuality=3",
                     "Tessellation=1", "TextureFilter=3", "TextureResolution=1", "ResolutionScalingMultiplier=1.000000"},
             };
         } else {
@@ -1825,7 +1825,7 @@ public class LauncherActivity extends Activity {
                 ex("TextureQuality", "Качество текстур", "", GLG, 4, "integer", 0, n03),
                 ex("Shadows", "Тени", "", GLG, 4, "integer", 0, n03),
                 ex("LightingQuality", "Освещение", "", GLG, 4, "integer", 0, "0|0 (мин.)", "1|1 (макс.)"),
-                ex("AmbientOcclusion", "Затенение углов (AO)", "", GLG, 4, "integer", 0, n03),
+                ex("AmbientOcclusion", "Затенение углов (AO)", "Чем выше, тем темнее картинка. Рекомендуется 1", GLG, 4, "integer", 0, n03),
                 ex("ScreenSpaceReflections", "Отражения в экране (SSR)", "", GLG, 4, "integer", 0, "0|0 (мин.)", "1|1", "2|2 (макс.)"),
                 ex("VehicleReflections", "Отражения на машинах", "", GLG, 4, "integer", 0, "0|0 (мин.)", "1|1", "2|2", "3|3", "4|4 (макс.)"),
                 ex("Mirrors", "Зеркала", "", GLG, 4, "integer", 0, n03),
@@ -1883,9 +1883,9 @@ public class LauncherActivity extends Activity {
                     "LODQuality=1", "Crowds=1", "GroundCover=1", "Particles=1", "WeatherEffects=1", "VolumetricLights=0", "SmokeShadows=0", "PostProcess=1", "AntiAliasing=2", "MotionBlur=0"},
                 {"res=900", "dyn=1", "TextureQuality=2", "Shadows=2", "LightingQuality=1", "AmbientOcclusion=1", "ScreenSpaceReflections=1", "VehicleReflections=2", "Mirrors=1",
                     "LODQuality=1", "Crowds=2", "GroundCover=2", "Particles=2", "WeatherEffects=2", "VolumetricLights=0", "SmokeShadows=1", "PostProcess=1", "AntiAliasing=2", "MotionBlur=0"},
-                {"res=0", "dyn=1", "TextureQuality=3", "Shadows=3", "LightingQuality=1", "AmbientOcclusion=2", "ScreenSpaceReflections=1", "VehicleReflections=3", "Mirrors=2",
+                {"res=0", "dyn=1", "TextureQuality=3", "Shadows=3", "LightingQuality=1", "AmbientOcclusion=1", "ScreenSpaceReflections=1", "VehicleReflections=3", "Mirrors=2",
                     "LODQuality=2", "Crowds=3", "GroundCover=3", "Particles=3", "WeatherEffects=3", "VolumetricLights=1", "SmokeShadows=1", "PostProcess=2", "AntiAliasing=3", "MotionBlur=0"},
-                {"res=0", "dyn=0", "TextureQuality=3", "Shadows=3", "LightingQuality=1", "AmbientOcclusion=3", "ScreenSpaceReflections=2", "VehicleReflections=4", "Mirrors=3",
+                {"res=0", "dyn=0", "TextureQuality=3", "Shadows=3", "LightingQuality=1", "AmbientOcclusion=1", "ScreenSpaceReflections=2", "VehicleReflections=4", "Mirrors=3",
                     "LODQuality=2", "Crowds=3", "GroundCover=3", "Particles=3", "WeatherEffects=3", "VolumetricLights=2", "SmokeShadows=2", "PostProcess=2", "AntiAliasing=3", "MotionBlur=1"},
             };
         }
