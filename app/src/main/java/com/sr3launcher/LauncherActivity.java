@@ -929,6 +929,7 @@ public class LauncherActivity extends Activity {
 
     private TextView updInfo;
     private Button updBtn;
+    private android.widget.ProgressBar updProg;
     private Updater.Release updRel;
     private boolean updBusy;
 
@@ -940,6 +941,13 @@ public class LauncherActivity extends Activity {
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-2, -2);
         bp.topMargin = dp(8);
         c.addView(updBtn, bp);
+        updProg = new android.widget.ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        updProg.setMax(100);
+        updProg.setProgressTintList(android.content.res.ColorStateList.valueOf(ACCENT));
+        updProg.setVisibility(View.GONE);
+        LinearLayout.LayoutParams pgp = new LinearLayout.LayoutParams(-1, dp(8));
+        pgp.topMargin = dp(8);
+        c.addView(updProg, pgp);
         updBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 if (updRel != null && updRel.apkUrl.length() > 0 && Updater.newer(updRel.tag, BuildConfig.VERSION_NAME)) downloadUpdate();
@@ -997,6 +1005,8 @@ public class LauncherActivity extends Activity {
         updBusy = true;
         updBtn.setEnabled(false);
         updInfo.setText("Скачиваю " + updRel.tag + "…");
+        updProg.setProgress(0);
+        updProg.setVisibility(View.VISIBLE);
         final String url = updRel.apkUrl;
         new Thread(new Runnable() {
             @Override public void run() {
@@ -1004,7 +1014,7 @@ public class LauncherActivity extends Activity {
                 try {
                     Updater.download(url, ApkProvider.apk(LauncherActivity.this).getParentFile(), new Updater.Progress() {
                         @Override public void onProgress(final int pct) {
-                            handler.post(new Runnable() { @Override public void run() { updInfo.setText("Скачиваю… " + pct + "%"); } });
+                            handler.post(new Runnable() { @Override public void run() { updInfo.setText("Скачиваю… " + pct + "%"); updProg.setProgress(pct); } });
                         }
                     });
                 } catch (Exception e) { err = e.getMessage() == null ? e.toString() : e.getMessage(); }
@@ -1013,6 +1023,7 @@ public class LauncherActivity extends Activity {
                     @Override public void run() {
                         updBusy = false;
                         updBtn.setEnabled(true);
+                        updProg.setVisibility(View.GONE);
                         if (error != null) { updInfo.setText("Не удалось скачать: " + error); return; }
                         installUpdate();
                     }

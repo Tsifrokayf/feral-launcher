@@ -33,6 +33,7 @@ public class HomeActivity extends Activity {
     private LinearLayout updBar;
     private TextView updText;
     private Button updBtn, laterBtn;
+    private android.widget.ProgressBar updProg;
     private Updater.Release updRel;
     private boolean updBusy;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -144,10 +145,21 @@ public class HomeActivity extends Activity {
         LinearLayout.LayoutParams ubp = new LinearLayout.LayoutParams(-2, -2);
         ubp.leftMargin = dp(8);
         updBar.addView(updBtn, ubp);
+        // обёртка: строка баннера и полоса прогресса под ней
+        final LinearLayout updWrap = new LinearLayout(this);
+        updWrap.setOrientation(LinearLayout.VERTICAL);
+        updProg = new android.widget.ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        updProg.setMax(100);
+        updProg.setProgressTintList(android.content.res.ColorStateList.valueOf(0xFF3D6BFF));
+        updProg.setVisibility(View.GONE);
+        updWrap.addView(updBar, new LinearLayout.LayoutParams(-1, -2));
+        LinearLayout.LayoutParams pgp = new LinearLayout.LayoutParams(-1, dp(8));
+        pgp.topMargin = dp(4);
+        updWrap.addView(updProg, pgp);
         updBar.setVisibility(View.GONE);
         LinearLayout.LayoutParams ubl = new LinearLayout.LayoutParams(-1, -2);
         ubl.bottomMargin = dp(8);
-        root.addView(updBar, ubl);
+        root.addView(updWrap, ubl);
 
         ScrollView sv = new ScrollView(this);
         row = new LinearLayout(this);
@@ -189,6 +201,8 @@ public class HomeActivity extends Activity {
         updBtn.setEnabled(false);
         laterBtn.setEnabled(false);
         updText.setText("Скачиваю " + updRel.tag + "…");
+        updProg.setProgress(0);
+        updProg.setVisibility(View.VISIBLE);
         final String url = updRel.apkUrl;
         new Thread(new Runnable() {
             @Override public void run() {
@@ -196,7 +210,7 @@ public class HomeActivity extends Activity {
                 try {
                     Updater.download(url, ApkProvider.apk(HomeActivity.this).getParentFile(), new Updater.Progress() {
                         @Override public void onProgress(final int pct) {
-                            handler.post(new Runnable() { @Override public void run() { updText.setText("Скачиваю… " + pct + "%"); } });
+                            handler.post(new Runnable() { @Override public void run() { updText.setText("Скачиваю " + updRel.tag + "… " + pct + "%"); updProg.setProgress(pct); } });
                         }
                     });
                 } catch (Exception e) { err = e.getMessage() == null ? e.toString() : e.getMessage(); }
@@ -206,6 +220,7 @@ public class HomeActivity extends Activity {
                         updBusy = false;
                         updBtn.setEnabled(true);
                         laterBtn.setEnabled(true);
+                        updProg.setVisibility(View.GONE);
                         if (error != null) { updText.setText("Не удалось скачать: " + error); return; }
                         installUpdate();
                     }
