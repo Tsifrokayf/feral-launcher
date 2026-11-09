@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Button;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -27,6 +30,12 @@ public class HomeActivity extends Activity {
 
     private G[] games;
     private LinearLayout row;
+    private LinearLayout updBar;
+    private TextView updText;
+    private Button updBtn;
+    private Updater.Release updRel;
+    private boolean updBusy;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     private int dp(float v) {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, getResources().getDisplayMetrics()));
@@ -64,6 +73,35 @@ public class HomeActivity extends Activity {
         sp.bottomMargin = dp(12);
         root.addView(sub, sp);
 
+        updBar = new LinearLayout(this);
+        updBar.setOrientation(LinearLayout.HORIZONTAL);
+        updBar.setGravity(Gravity.CENTER_VERTICAL);
+        updBar.setPadding(dp(14), dp(8), dp(14), dp(8));
+        GradientDrawable ub = new GradientDrawable();
+        ub.setColor(0xFF1E2A44);
+        ub.setCornerRadius(dp(12));
+        updBar.setBackground(ub);
+        updText = new TextView(this);
+        updText.setTextColor(Color.WHITE);
+        updText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        updBar.addView(updText, new LinearLayout.LayoutParams(0, -2, 1f));
+        updBtn = new Button(this);
+        updBtn.setText("Обновить");
+        updBtn.setAllCaps(false);
+        updBtn.setTextColor(Color.WHITE);
+        GradientDrawable bb = new GradientDrawable();
+        bb.setColor(0xFF3D6BFF);
+        bb.setCornerRadius(dp(10));
+        updBtn.setBackground(bb);
+        updBtn.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { downloadUpdate(); } });
+        LinearLayout.LayoutParams ubp = new LinearLayout.LayoutParams(-2, -2);
+        ubp.leftMargin = dp(12);
+        updBar.addView(updBtn, ubp);
+        updBar.setVisibility(View.GONE);
+        LinearLayout.LayoutParams ubl = new LinearLayout.LayoutParams(-1, -2);
+        ubl.bottomMargin = dp(8);
+        root.addView(updBar, ubl);
+
         ScrollView sv = new ScrollView(this);
         row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -73,6 +111,74 @@ public class HomeActivity extends Activity {
         root.addView(sv, new LinearLayout.LayoutParams(-1, 0, 1f));
         setContentView(root);
         buildCards();
+        checkUpdate();
+    }
+
+    private void checkUpdate() {
+        new Thread(new Runnable() {
+            @Override public void run() {
+                Updater.Release r = null;
+                try { r = Updater.latest(BuildConfig.REPO); } catch (Exception ignored) { }
+                final Updater.Release rel = r;
+                handler.post(new Runnable() {
+                    @Override public void run() {
+                        if (rel != null && rel.apkUrl.length() > 0 && Updater.newer(rel.tag, BuildConfig.VERSION_NAME)) {
+                            updRel = rel;
+                            updText.setText("Доступна новая версия " + rel.tag + " (у вас " + BuildConfig.VERSION_NAME + ")");
+                            updBar.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        }, "update-check").start();
+    }
+
+    private void downloadUpdate() {
+        if (updBusy || updRel == null) return;
+        updBusy = true;
+        updBtn.setEnabled(false);
+        updText.setText("Скачиваю " + updRel.tag + "…");
+        final String url = updRel.apkUrl;
+        new Thread(new Runnable() {
+            @Override public void run() {
+                String err = null;
+                try {
+                    Updater.download(url, ApkProvider.apk(HomeActivity.this).getParentFile(), new Updater.Progress() {
+                        @Override public void onProgress(final int pct) {
+                            handler.post(new Runnable() { @Override public void run() { updText.setText("Скачиваю… " + pct + "%"); } });
+                        }
+                    });
+                } catch (Exception e) { err = e.getMessage() == null ? e.toString() : e.getMessage(); }
+                final String error = err;
+                handler.post(new Runnable() {
+                    @Override public void run() {
+                        updBusy = false;
+                        updBtn.setEnabled(true);
+                        if (error != null) { updText.setText("Не удалось скачать: " + error); return; }
+                        installUpdate();
+                    }
+                });
+            }
+        }, "update-download").start();
+    }
+
+    private void installUpdate() {
+        if (!getPackageManager().canRequestPackageInstalls()) {
+            updText.setText("Разрешите установку обновлений в открывшемся окне и снова нажмите «Обновить».");
+            try {
+                startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, android.net.Uri.parse("package:" + getPackageName())));
+            } catch (Exception ignored) { }
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setDataAndType(ApkProvider.uri(this), "application/vnd.android.package-archive");
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+            updText.setText("Файл скачан, подтвердите установку в окне системы.");
+        } catch (Exception e) {
+            updText.setText("Не удалось открыть установщик: " + e.getMessage());
+        }
     }
 
     /** Мелочь, чтобы не тянуть лишние импорты. */
